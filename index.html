@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Terminal WSL</title>
+  <style>
+    #terminal {
+      font-family: monospace;
+      white-space: pre-wrap;
+      background-color: black;
+      color: white;
+      height: 100%;
+      padding: 10px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Meu Terminal WSL</h1>
+  <div id="terminal"></div>
+  <input type="text" id="input" placeholder="Digite aqui..." />
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    // Capturar a saída do terminal do processo principal
+    ipcRenderer.on('terminal-output', (event, data) => {
+      const terminal = document.getElementById('terminal');
+      terminal.textContent += data;
+      terminal.scrollTop = terminal.scrollHeight; // Scroll automático
+    });
+
+    // Enviar a entrada para o processo do terminal
+    document.getElementById('input').addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        const input = event.target.value;
+        ipcRenderer.send('terminal-input', input); // Enviar para o main process
+        event.target.value = ''; // Limpar o campo de input
+      }
+    });
+  </script>
+</body>
+</html>
